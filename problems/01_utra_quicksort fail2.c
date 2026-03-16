@@ -19,53 +19,43 @@
 
 
 /**
-归并两个序列，左右两个序列已经排好序，现在需要把它们合并成一个序列
-*/
-long long merge(int a[], int left, int right, int mid, int tmp[]){
-    int i=left,j=mid+1,k=left,count=0;
-    
-    while(i<=mid && j<=right){
-        if(a[i]<=a[j]){
-            tmp[k++] = a[i++];
-        }else {
-            tmp[k++] = a[j++];
-            count += mid - i + 1;   //此时出现逆序a[i]>a[j],统计逆序对个数
-        }
-         
-    }
-    while(i<=mid){
-        tmp[k++] = a[i++];
-    }
-    while(j<=right){
-        tmp[k++] = a[j++];
-    }
-    for(i=left; i<=right; i++){
-        a[i] = tmp[i];
-    }
-    return count;
-}
+统计逆序对的数量，即冒泡排序的交换次数（只能交换相邻元素）
 
-long long mergeSort(int a[], int left, int right, int tmp[]){
-    if(left >= right) return 0;
-    int count = 0;
-    int mid = (left+right)/2;
-    count += mergeSort(a, left, mid, tmp);
-    count += mergeSort(a, mid+1, right, tmp);
-    count += merge(a, left, right, mid, tmp);
-    return count;
+复杂度仍然是N^2 没有复用归并排序统计逆序对
+*/
+long long merge(int a[], int left, int r, int mid){
+    printf("merge l=%d,r=%d,mid=%d\n",left,r,mid);
+    if(r<=left) return 0;
+    if(left+1==r) if(a[left]>a[r]) return 1; else return 0;
+    int i=left,j=mid,tmp=0,leftsum=0,rightsum=0;
+    for(j=mid;j<=r;j++){
+        while(i<mid){
+            if(a[i]>a[j]) {
+                tmp++; 
+            }
+            i++;
+        }   
+        i=left;
+    }
+    printf("tmp=%d\n", tmp);
+    if(r-left>1){
+        leftsum = merge(a,left,mid-1,(left+mid-1)/2);
+        rightsum = merge(a,mid, r,(mid+r)/2);
+        printf("leftsum=%d,rightsum=%d\n",leftsum, rightsum);
+    }
+
+    return leftsum+rightsum+tmp;
 }
 
 void solve(){
     int n;
     long long count;
-    static int arr[500000];
-    static int tmp[500000];
     while (scanf("%d", &n)==1 && n != 0) {
-
+        int arr[500000];
         for (int i = 0; i < n; i++) {
             scanf("%d", &arr[i]);
         }
-        count = mergeSort(arr, 0, n - 1,tmp);
+        count = merge(arr, 0, n - 1, n/2);
         printf("%lld\n", count);
 
     }

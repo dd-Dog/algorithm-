@@ -14,12 +14,13 @@ if "%~1"=="" (
     exit /b 1
 )
 
-set "SOURCE_FILE=%~1"
+REM 获取完整路径，避免相对路径问题
+set "SOURCE_FILE=%~f1"
 set "DEBUG_MODE=%~2"
 
 REM 检查文件是否存在
 if not exist "%SOURCE_FILE%" (
-    echo 错误: 文件不存在: %SOURCE_FILE%
+    echo 错误: 文件不存在: %~1
     exit /b 1
 )
 
@@ -42,7 +43,7 @@ if %errorlevel% neq 0 (
     )
 )
 
-REM 获取文件名（不含扩展名）
+REM 获取文件名（不含扩展名），使用完整路径避免中文问题
 for %%f in ("%SOURCE_FILE%") do set "OUTPUT_NAME=%%~nf"
 
 REM 创建输出目录
@@ -50,11 +51,11 @@ if not exist "build\bin" mkdir build\bin
 
 REM 设置编译选项
 if /i "%DEBUG_MODE%"=="debug" (
-    echo [调试模式] 编译 %SOURCE_FILE%...
+    echo [调试模式] 编译 %~1...
     set "FLAGS=-Wall -Wextra -g -O0 -I./utils"
     set "OUTPUT=build\bin\%OUTPUT_NAME%_debug.exe"
 ) else (
-    echo [发布模式] 编译 %SOURCE_FILE%...
+    echo [发布模式] 编译 %~1...
     set "FLAGS=-Wall -Wextra -O2 -I./utils"
     set "OUTPUT=build\bin\%OUTPUT_NAME%.exe"
 )
@@ -80,9 +81,13 @@ echo.
 echo ========== 运行程序 ==========
 echo.
 
-REM 运行程序
+REM 运行程序（使用延迟扩展变量避免中文路径问题）
+setlocal disabledelayedexpansion
 "%OUTPUT%"
+set RUN_EXIT_CODE=%errorlevel%
+endlocal
 
 echo.
 echo ========== 程序结束 ==========
-echo 退出代码: %errorlevel%
+echo 退出代码: %RUN_EXIT_CODE%
+exit /b %RUN_EXIT_CODE%

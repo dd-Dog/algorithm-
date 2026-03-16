@@ -17,59 +17,62 @@
 
 // 在这里实现你的算法函数
 
-
-/**
-归并两个序列，左右两个序列已经排好序，现在需要把它们合并成一个序列
-*/
-long long merge(int a[], int left, int right, int mid, int tmp[]){
-    int i=left,j=mid+1,k=left,count=0;
-    
-    while(i<=mid && j<=right){
-        if(a[i]<=a[j]){
-            tmp[k++] = a[i++];
-        }else {
-            tmp[k++] = a[j++];
-            count += mid - i + 1;   //此时出现逆序a[i]>a[j],统计逆序对个数
-        }
-         
+void printArr(int arr[], int start, int end){
+    for(int i=start; i<end; i++){
+        printf("%d ", arr[i]);
     }
-    while(i<=mid){
-        tmp[k++] = a[i++];
-    }
-    while(j<=right){
-        tmp[k++] = a[j++];
-    }
-    for(i=left; i<=right; i++){
-        a[i] = tmp[i];
-    }
-    return count;
+    printf("\n");
 }
 
-long long mergeSort(int a[], int left, int right, int tmp[]){
-    if(left >= right) return 0;
-    int count = 0;
-    int mid = (left+right)/2;
-    count += mergeSort(a, left, mid, tmp);
-    count += mergeSort(a, mid+1, right, tmp);
-    count += merge(a, left, right, mid, tmp);
-    return count;
+int partition(int arr[], int left, int right){
+    printf("partition left=%d, right=%d\n", left,right);
+    printArr(arr, 0, 8);
+    int pivot,i,j;
+    pivot  = arr[left];
+    i = left;
+    j = right;
+    while(i < j){
+        printf("partition step1 i=%d j=%d---", i, j);
+        while(arr[j] >= pivot && i<j) j--;
+        printf("partition step2 i=%d j=%d---", i, j);
+        arr[i] = arr[j];
+        while(arr[i]<=pivot && i<j) i++;
+        printf("partition step4 i=%d j=%d---", i, j);
+        arr[j] = arr[i];            
+    }
+    arr[i] = pivot; 
+    printArr(arr, 0, 8);
+    return i;
+
 }
 
-void solve(){
+void quicksort(int arr[], int left, int right) {
+    printf("quicksort, left=%d, right=%d\n", left, right);
+    if(left >= right) return;
+    int mid = partition(arr, left, right);
+    printf("mid=%d\n", mid);
+    if(mid > left)
+        quicksort(arr, left, mid-1);
+    if(mid < right)
+        quicksort(arr, mid+1, right);
+}
+
+void solve() {
+    // TODO: 在这里填充你的算法代码
     int n;
-    long long count;
-    static int arr[500000];
-    static int tmp[500000];
     while (scanf("%d", &n)==1 && n != 0) {
-
+        int arr[500000];
         for (int i = 0; i < n; i++) {
             scanf("%d", &arr[i]);
         }
-        count = mergeSort(arr, 0, n - 1,tmp);
-        printf("%lld\n", count);
 
+        //quicksort
+        quicksort(arr, 0, n - 1);
+        printArr(arr, 0, n);
     }
+
 }
+
 // ============================================
 // 主函数
 // ============================================
